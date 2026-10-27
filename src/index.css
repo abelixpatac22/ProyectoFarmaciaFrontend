@@ -1,0 +1,117 @@
+@import 'tailwindcss';
+
+/* Tokens de diseño: Tailwind v4 genera utilidades a partir de estas variables
+   (por ejemplo font-sans, text-brand-600, bg-paper). La dirección visual está en DESIGN.md. */
+@theme {
+  --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+
+  /* Verde de la cruz de farmacia. brand-600 y brand-700 llevan texto blanco con contraste AA. */
+  --color-brand-50: oklch(0.97 0.02 160);
+  --color-brand-100: oklch(0.94 0.04 160);
+  --color-brand-200: oklch(0.88 0.06 160);
+  --color-brand-400: oklch(0.68 0.11 160);
+  --color-brand-500: oklch(0.58 0.12 160);
+  --color-brand-600: oklch(0.5 0.11 160);
+  --color-brand-700: oklch(0.43 0.095 160);
+  --color-brand-900: oklch(0.3 0.06 162);
+
+  /* Un fondo, una tinta y una tinta suave para notas secundarias */
+  --color-paper: #f3f4f1;
+  --color-ink: #1b1f1d;
+  --color-ink-soft: #4d5652;
+
+  /* Campos de color de los empaques (ProductImage) */
+  --color-field-sage: #b7c8be;
+  --color-field-slate: #a6b3bc;
+  --color-field-blush: #d6c4b8;
+  --color-field-mint: #c9d8cf;
+
+  /* Un solo radio para tarjetas, botones y campos */
+  --radius-box: 6px;
+
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+  /* Entrada de cada página y de las tarjetas (con retraso escalonado: backwards las oculta mientras esperan) */
+  --animate-page-in: page-in 220ms var(--ease-out-quint);
+  --animate-rise: page-in 280ms var(--ease-out-quint) backwards;
+  --animate-bump: bump 320ms var(--ease-out-quint);
+
+  @keyframes page-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Logo: quieto casi todo el ciclo y media vuelta sobre su eje vertical. Como la cruz es simétrica,
+     a 180° se ve igual que a 0°, así que el ciclo reinicia sin que se note el salto. */
+  --animate-logo-flip: logo-flip 5s infinite;
+
+  @keyframes logo-flip {
+    0%,
+    88% {
+      transform: perspective(400px) rotateY(0deg);
+      animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+    }
+    100% {
+      transform: perspective(400px) rotateY(180deg);
+    }
+  }
+
+  @keyframes bump {
+    40% {
+      transform: scale(1.25);
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-font-smoothing: antialiased;
+    scrollbar-color: var(--color-field-slate) var(--color-paper);
+  }
+
+  body {
+    @apply bg-paper font-sans text-ink;
+    caret-color: var(--color-brand-600);
+  }
+
+  ::selection {
+    background: var(--color-brand-100);
+    color: var(--color-brand-900);
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+}
+
+/* Sin movimiento para quien lo pidió en su sistema: el contenido aparece igual, sin desplazarse.
+   El spinner sigue girando porque es lo único que indica que algo está cargando. */
+@media (prefers-reduced-motion: reduce) {
+  *:not(.animate-spin),
+  ::before,
+  ::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Menos movimiento no es cero: la página y las tarjetas siguen apareciendo, solo con opacidad */
+  .animate-page-in,
+  .animate-rise {
+    animation: fade-in 160ms ease-out !important;
+  }
+}
