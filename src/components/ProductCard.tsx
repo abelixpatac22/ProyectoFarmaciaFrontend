@@ -26,6 +26,7 @@ export function ProductCard({ producto }: { producto: Producto }) {
         <ProductImage
           id={producto.id_producto}
           nombre={nombre}
+          imagen={producto.imagen_url}
           presentacion={producto.descripcion}
           codigo={producto.codigo_barras}
         />

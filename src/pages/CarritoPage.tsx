@@ -71,7 +71,7 @@ export function CarritoPage() {
             return (
               <li key={linea.id_producto} className="flex gap-4 p-4 sm:p-5">
                 <div className="w-20 shrink-0 overflow-hidden rounded-xl sm:w-24">
-                  <ProductImage id={linea.id_producto} nombre={nombre} compact />
+                  <ProductImage id={linea.id_producto} nombre={nombre} imagen={linea.producto?.imagen_url} compact />
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">

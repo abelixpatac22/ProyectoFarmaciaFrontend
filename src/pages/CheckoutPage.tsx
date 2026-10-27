@@ -137,7 +137,7 @@ export function CheckoutPage() {
             {lineas.map((l) => (
               <li key={l.id_producto} className="flex items-center gap-3 text-sm">
                 <div className="w-12 shrink-0 overflow-hidden rounded-lg">
-                  <ProductImage id={l.id_producto} nombre={l.producto?.nombre ?? ''} compact />
+                  <ProductImage id={l.id_producto} nombre={l.producto?.nombre ?? ''} imagen={l.producto?.imagen_url} compact />
                 </div>
                 <span className="flex-1 line-clamp-2">
                   {l.producto?.nombre} <span className="text-zinc-500">× {l.cantidad}</span>

@@ -18,7 +18,7 @@ export const FACTURA_PENDIENTE_KEY = 'farmacia:factura-pendiente'
 
 /**
  * El flujo completo de compra, en orden:
- * 1. Cliente  2. Factura (descuenta stock)  3. Sesión de Stripe  -> devuelve la url para redirigir.
+ * 1. Cliente  2. Factura Pendiente (aparta stock)  3. Sesión de Stripe  -> devuelve la url para redirigir.
  */
 export async function procesarCompra(comprador: DatosComprador, lineas: CartLine[]) {
   // El backend busca al cliente por NIT o lo crea (sin login, los compradores no tienen cuenta)
@@ -50,13 +50,14 @@ export async function procesarCompra(comprador: DatosComprador, lineas: CartLine
     })),
   })
 
-  sessionStorage.setItem(FACTURA_PENDIENTE_KEY, JSON.stringify({ id_factura: factura.id_factura, total }))
-
-  const { url } = await crearSesionPago({
+  const { url, id_sesion } = await crearSesionPago({
     id_factura: factura.id_factura,
     total,
     email_cliente: comprador.email,
   })
+
+  // Con id_sesion, al volver de Stripe le pedimos al backend que confirme o cancele este pago
+  sessionStorage.setItem(FACTURA_PENDIENTE_KEY, JSON.stringify({ id_factura: factura.id_factura, total, id_sesion }))
 
   return { url, id_factura: factura.id_factura }
 }

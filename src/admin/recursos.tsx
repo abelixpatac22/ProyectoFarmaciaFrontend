@@ -90,6 +90,14 @@ export const productosConfig: ResourceConfig<Producto> = {
   campos: [
     { name: 'nombre', label: 'Nombre', tipo: 'texto', requerido: true, completo: true },
     { name: 'descripcion', label: 'Descripción', tipo: 'textarea' },
+    {
+      name: 'imagen_url',
+      label: 'Imagen (enlace)',
+      tipo: 'texto',
+      placeholder: 'https://...',
+      ayuda: 'Clic derecho en una imagen de internet, "Copiar dirección de la imagen" y pégala aquí. Vacío: se dibuja el empaque.',
+      completo: true,
+    },
     { name: 'codigo_barras', label: 'Código de barras', tipo: 'texto', placeholder: 'Debe ser único' },
     {
       name: 'id_proveedor',

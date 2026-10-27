@@ -20,6 +20,8 @@ export interface Producto {
   codigo_barras: string | null
   nombre: string | null
   descripcion: string | null
+  /** Enlace a una imagen en internet; sin ella la tienda dibuja el empaque. */
+  imagen_url: string | null
   precio_costo: Decimal | null
   precio_venta: Decimal | null
   stock_actual: number | null
@@ -162,4 +164,11 @@ export interface CrearSesionPagoBody {
 
 export interface CrearSesionPagoRespuesta {
   url: string
+  id_sesion: string
+}
+
+/** POST /api/pagos/confirmar y /api/pagos/cancelar responden el estado final de la factura. */
+export interface EstadoPagoRespuesta {
+  id_factura: number
+  estado_factura: string
 }

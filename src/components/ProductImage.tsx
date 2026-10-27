@@ -1,14 +1,18 @@
+import { useState } from 'react'
+
 /**
- * El backend todavía no tiene imagen_url, así que dibujamos el empaque del producto:
+ * Si el producto tiene imagen_url se muestra la foto sobre fondo blanco.
+ * Si no tiene (o el enlace no carga) dibujamos el empaque del producto:
  * un campo de color (fijo por id: el mismo producto siempre se ve igual) con una etiqueta
  * que lleva el nombre, la presentación y el código de barras reales.
- * Cuando exista la imagen, este componente es el único que hay que cambiar.
  */
 const CAMPOS = ['bg-field-sage', 'bg-field-slate', 'bg-field-blush', 'bg-field-mint']
 
 interface ProductImageProps {
   id: number
   nombre: string
+  /** Enlace de la foto (imagen_url del producto). */
+  imagen?: string | null
   /** Presentación del producto (la descripción), impresa bajo el nombre. */
   presentacion?: string | null
   codigo?: string | null
@@ -18,8 +22,24 @@ interface ProductImageProps {
   stage?: boolean
 }
 
-export function ProductImage({ id, nombre, presentacion, codigo, compact = false, stage = false }: ProductImageProps) {
+export function ProductImage({ id, nombre, imagen, presentacion, codigo, compact = false, stage = false }: ProductImageProps) {
+  // Enlace que no cargó (roto o borrado): se recuerda para mostrar el empaque en su lugar
+  const [imagenRota, setImagenRota] = useState<string | null>(null)
   const campo = CAMPOS[id % CAMPOS.length]
+
+  if (imagen && imagen !== imagenRota) {
+    return (
+      <div className={`grid place-items-center overflow-hidden bg-white ${stage ? 'h-full' : 'aspect-[4/3]'}`}>
+        <img
+          src={imagen}
+          alt={nombre}
+          loading="lazy"
+          onError={() => setImagenRota(imagen)}
+          className={`size-full object-contain ${compact ? 'p-1' : 'p-6 sm:p-10'} transition-transform duration-250 ease-[var(--ease-out-quint)] motion-safe:group-hover:scale-[1.03]`}
+        />
+      </div>
+    )
+  }
 
   if (compact) {
     const inicial = nombre.match(/\p{L}/u)?.[0]?.toUpperCase() ?? '+'
