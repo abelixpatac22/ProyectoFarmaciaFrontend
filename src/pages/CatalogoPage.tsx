@@ -22,7 +22,6 @@ const ORDENES: Record<Orden, string> = {
 const GARANTIAS = [
   ['Precios en quetzales', 'Con IVA incluido. El desglose aparece al pagar.'],
   ['Pago con tarjeta', 'El cobro se hace en la página segura de Stripe.'],
-  ['Receta marcada', 'Los medicamentos que la piden lo dicen antes de comprar.'],
 ] as const
 
 function ordenar(productos: Producto[], orden: Orden): Producto[] {

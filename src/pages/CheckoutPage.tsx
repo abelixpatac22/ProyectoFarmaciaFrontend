@@ -126,8 +126,6 @@ export function CheckoutPage() {
           </button>
           <p className="text-center text-xs text-zinc-500">
             Serás redirigido a Stripe para pagar con tarjeta de forma segura.
-            <br />
-            Modo de prueba: usa la tarjeta 4242 4242 4242 4242, cualquier fecha futura y cualquier CVC.
           </p>
         </form>
 

@@ -65,7 +65,7 @@ export function Layout() {
       <footer className="bg-brand-900 text-brand-50">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 pt-14 pb-10 sm:px-6 lg:px-8">
           <p className="text-[clamp(3rem,10vw,8rem)] leading-none tracking-[-0.04em]">Farmacia</p>
-          <p className="text-sm text-brand-100">© {ANIO} Farmacia · Proyecto universitario de programación web</p>
+          <p className="text-sm text-brand-100">© {ANIO} Farmacia</p>
         </div>
       </footer>
     </div>
