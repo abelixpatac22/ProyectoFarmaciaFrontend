@@ -1,7 +1,34 @@
-# Farmacia · Frontend
+# Farmacia Bendición · Frontend
 
 Tienda en línea y panel de administración de la farmacia.
-React + Vite + TypeScript + Tailwind CSS v4 + React Router + TanStack Query.
+
+- **Tienda publicada:** https://farmaciabendiciontienda.onrender.com
+- **Panel:** https://farmaciabendiciontienda.onrender.com/admin
+- **Backend:** repositorio [ProyectoFarmaciaRealista](https://github.com/abelixpatac22/ProyectoFarmaciaRealista)
+
+## Tecnologías
+
+React 19 + Vite + TypeScript + Tailwind CSS v4 + React Router + TanStack Query.
+
+## Qué se puede hacer
+
+**En la tienda (sin cuenta):**
+
+- Ver el catálogo, buscar y ordenar productos, y ver el detalle de cada uno.
+- Agregar al carrito, que se guarda en el navegador.
+- Comprar: llenar los datos de la factura y pagar con tarjeta en Stripe.
+- Los medicamentos con receta se muestran, pero no se pueden comprar en línea: el producto explica que
+  hay que presentar la receta en la farmacia física.
+
+**En el panel (empleados con sesión):**
+
+- **Productos:** crear, editar y desactivar; con imagen, proveedor, precios y stock mínimo.
+- **Lotes y vencimientos:** registrar entradas de mercadería, ver los lotes con un semáforo de
+  vencimiento (vencido, vence en 30 días, en 90 días, vigente) y retirar lotes vencidos o dañados.
+  La pestaña muestra cuántos lotes necesitan atención.
+- **Facturas:** listado y detalle, incluido de qué lote salió cada unidad.
+- **Gestión:** clientes, proveedores y empleados. Solo un administrador puede crear o editar empleados.
+- **Mi cuenta:** cambiar la contraseña.
 
 ## Cómo correrlo
 
@@ -13,13 +40,25 @@ npm run dev        # http://localhost:5173
 Necesitas el backend corriendo en `http://localhost:8080` (en su carpeta: `npm start`).
 Vite reenvía todo lo que empiece con `/api` a ese puerto (ver `vite.config.ts`).
 
-Para usar el backend desplegado en vez del local, crea un archivo `.env.local` con:
+Para usar el backend publicado en vez del local, crea un archivo `.env.local` con:
 
 ```
-VITE_API_URL=https://proyect-farmacia.onrender.com
+VITE_API_URL=https://proyectofarmaciarealista.onrender.com
 ```
 
-Otros comandos: `npm run build` (compila y revisa tipos), `npm run lint`, `npm run preview`.
+Otros comandos: `npm run build` (revisa tipos y compila a `dist/`), `npm run lint`, `npm run preview`.
+
+## Publicarlo en Render
+
+New → Static Site, conectado a este repositorio:
+
+- Build command: `npm install && npm run build`
+- Publish directory: `dist`
+- Environment: `VITE_API_URL` = la URL del backend publicado
+- Redirects/Rewrites: origen `/*`, destino `/index.html`, acción **Rewrite** (para que al recargar
+  `/admin/lotes` o `/productos/3` no salga 404)
+
+El backend debe tener la URL de la tienda en su variable `FRONTEND_URL`.
 
 ## Pantallas
 
@@ -27,102 +66,74 @@ Otros comandos: `npm run build` (compila y revisa tipos), `npm run lint`, `npm r
 | --- | --- | --- |
 | `/` | Catálogo con búsqueda y orden | `GET /api/productos/activos/lista` |
 | `/productos/:id` | Detalle de producto | `GET /api/productos/:id` |
-| `/carrito` | Carrito (vive en el navegador) | Reutiliza la lista de activos para precios y stock |
-| `/checkout` | Datos de factura y pago | `GET/POST /api/clientes`, `POST /api/facturas`, `POST /api/pagos/crear-sesion` |
-| `/pago/exitoso`, `/pago/cancelado` | Resultado del pago | Ninguno |
-| `/admin/productos` | Gestión de productos | CRUD de productos + `GET /api/proveedores/activos/lista` |
-| `/admin/gestion/clientes`, `/admin/gestion/proveedores`, `/admin/gestion/empleados` | Sección Gestión, con una pestaña por recurso | CRUD de cada recurso |
-| `/admin/facturas`, `/admin/facturas/:id` | Facturas y su detalle | `GET /api/facturas`, `GET /api/facturas/:id` |
+| `/carrito` | Carrito | Reutiliza la lista de activos para precios y stock |
+| `/checkout` | Datos de factura y pago | `POST /api/clientes/checkout`, `POST /api/facturas`, `POST /api/pagos/crear-sesion` |
+| `/pago/exitoso`, `/pago/cancelado` | Resultado del pago | `POST /api/pagos/confirmar`, `POST /api/pagos/cancelar` |
 | `/admin/login` | Inicio de sesión de empleados | `POST /api/auth/login` |
-| `/admin/cuenta` | Mi cuenta y cambio de contraseña | `GET /api/auth/perfil`, `PUT /api/auth/cambiar-password` |
-
-**Login de empleados.** Todo `/admin` exige sesión. El token (dura 8 horas) y el empleado se guardan en
-`localStorage` (`src/auth/sesion.ts`) y `apiFetch` agrega `Authorization: Bearer <token>` a cada petición.
-Si el backend responde 401 con un token, la sesión se borra y el panel manda al login. Solo un
-administrador ve los botones para crear, editar y desactivar empleados; el backend lo exige igual.
-Los clientes de la tienda siguen sin cuenta. Mira **BACKEND-CAMBIOS.md** para lo pendiente.
-
-## Orden recomendado para leer el código
-
-1. `src/types/models.ts`: qué datos manda el backend.
-2. `src/api/client.ts` y `src/api/crud.ts`: cómo se habla con el backend.
-3. `src/hooks/useProductos.ts` y `src/pages/CatalogoPage.tsx`: la primera pantalla completa.
-4. `src/cart/`: el carrito (reducer + contexto + localStorage).
-5. `src/api/checkout.ts` y `src/pages/CheckoutPage.tsx`: la compra.
-6. `src/admin/recurso.ts`, `src/admin/recursos.tsx` y `src/admin/ResourcePage.tsx`: el panel.
-7. `src/router.tsx`: cómo se conectan todas las pantallas.
+| `/admin/productos` | Productos | CRUD de productos |
+| `/admin/lotes` | Lotes y vencimientos | `GET /api/lotes`, `POST /api/lotes`, `PUT /api/lotes/:id/retirar` |
+| `/admin/facturas`, `/admin/facturas/:id` | Facturas y su detalle | `GET /api/facturas`, `GET /api/facturas/:id` |
+| `/admin/gestion/clientes`, `/proveedores`, `/empleados` | Gestión, una pestaña por recurso | CRUD de cada recurso |
+| `/admin/cuenta` | Mi cuenta | `GET /api/auth/perfil`, `PUT /api/auth/cambiar-password` |
 
 ## Estructura
 
 ```
 src/
 ├── api/          Único lugar donde se habla con el backend
-│   ├── client.ts   apiFetch(): fetch + ApiError con status; assertMensajeOk() para "No se pudo…"
-│   ├── crud.ts     createCrudApi(): las 6 rutas comunes, una sola vez para 4 recursos
-│   ├── productos.ts, clientes.ts, proveedores.ts, empleados.ts
-│   ├── facturas.ts, pagos.ts
-│   └── checkout.ts procesarCompra(): cliente -> factura -> sesión de Stripe
-├── types/models.ts   Tipos idénticos a los modelos de Sequelize
-├── cart/         Carrito: reducer, contexto, provider, hooks
-├── hooks/        useProductos (consultas), useDelayedFlag (carga lenta)
-├── lib/          Funciones puras: dinero, formato, producto, queryClient
-├── components/   Piezas de interfaz reutilizables (tarjeta, badge, mensajes, íconos…)
+│   ├── client.ts   apiFetch(): fetch + token + ApiError con el código HTTP
+│   ├── crud.ts     createCrudApi(): las rutas comunes, una sola vez para 4 recursos
+│   ├── checkout.ts procesarCompra(): cliente -> factura -> sesión de Stripe
+│   └── productos.ts, lotes.ts, facturas.ts, pagos.ts, clientes.ts...
+├── types/models.ts   Tipos iguales a lo que responde el backend
+├── auth/         Sesión del empleado (token en localStorage)
+├── cart/         Carrito: reducer, contexto y líneas con datos del backend
+├── hooks/        Consultas de productos y avisos de carga lenta
+├── lib/          Funciones puras: dinero e IVA, formato, stock
+├── components/   Piezas reutilizables: tarjeta, imagen, badge, mensajes, íconos
 ├── pages/        Pantallas de la tienda
-├── admin/        Panel: layout, página genérica, formulario genérico, facturas
+├── admin/        Panel: layout, página y formulario genéricos, lotes, facturas
 ├── router.tsx    Todas las rutas
-└── main.tsx      Punto de entrada: providers de Query, carrito y Router
+└── main.tsx      Punto de entrada
 ```
 
-## Las decisiones importantes y por qué
+## Decisiones de diseño
 
 **Capas.** Un componente nunca llama a `fetch`. El flujo es
-página → hook (`useQuery`/`useMutation`) → función de `src/api` → `apiFetch`.
-Si mañana cambia una URL o se agrega el token del login, se toca un solo archivo.
+página → hook (`useQuery` / `useMutation`) → función de `src/api` → `apiFetch`.
+Si cambia una URL o la forma de enviar el token, se toca un solo archivo.
 
-**Tipos = lo que llega por la red.** `precio_venta` es `string | null` porque así lo manda el backend
-(DECIMAL de PostgreSQL). Se convierte al usarlo con `toNumber()`. Todos los campos son `| null` porque
-ningún modelo del backend tiene `allowNull: false`, y TypeScript te obliga a manejar el caso vacío.
+**Errores de red.** `fetch` no falla con 404 ni 500, solo cuando no hay conexión. `apiFetch` revisa la
+respuesta y lanza un `ApiError` con el código HTTP. Si llega un 401 con sesión, la sesión se borra y el
+panel manda al login.
 
-**`fetch` no falla con 404 ni 500.** Solo lanza error cuando no hay red. `apiFetch` revisa `res.ok`
-y lanza un `ApiError` con el `status`. Además, como el backend responde 200 con "No se pudo…" cuando
-un PUT falla, `assertMensajeOk` lo convierte en error para no mostrar "guardado" cuando no lo fue.
+**La compra va sin sesión.** Las peticiones del panel llevan el token del empleado, pero la factura de la
+tienda nunca lo lleva. Así, con el panel abierto en el mismo navegador, una compra web sigue siendo una
+compra web (Pendiente, por pagar) y no una venta de mostrador.
 
-**TanStack Query** guarda en caché, reintenta, cancela peticiones y te da `isPending` / `error` / `data`
-sin `useEffect` + `useState` a mano. `useMutation` hace lo mismo para crear y editar. Después de guardar,
-`invalidateQueries` marca los datos como viejos y se vuelven a pedir solos. Como el panel y la tienda
-comparten la clave `['productos']`, editar un producto en el panel actualiza también el catálogo.
+**TanStack Query** guarda en caché, reintenta y entrega `isPending` / `error` / `data` sin `useEffect`
+a mano. Después de guardar, `invalidateQueries` vuelve a pedir los datos. El panel y la tienda comparten
+la clave `['productos']`, así que registrar un lote o editar un producto actualiza también el catálogo.
 
-**Cuatro estados en cada pantalla:** cargando (esqueleto o spinner), error (mensaje y botón Reintentar),
-vacío y con datos. Si pasan 4 s cargando, se avisa que el servidor se está despertando: Render gratis
-duerme el backend y la primera petición puede tardar unos 50 s.
+**Cuatro estados en cada pantalla:** cargando, error (con botón Reintentar), vacío y con datos. Si la
+carga tarda, se avisa que el servidor se está despertando: el plan gratis de Render duerme el backend.
+
+**Stock vendible.** La tienda usa `stock_disponible`, que no cuenta los lotes vencidos. El panel muestra
+además cuántas unidades vencidas quedan por retirar.
 
 **El carrito guarda solo `id_producto` y `cantidad`.** Nombre, precio y stock se leen siempre del backend,
-así un precio que cambió no se queda viejo en el carrito. Si un producto se agota o se desactiva,
-el carrito lo marca en rojo y no deja pagar hasta corregirlo. Se guarda en `localStorage` con un
-reducer: todos los cambios posibles están en `cartReducer.ts`.
+así un precio que cambió no se queda viejo. Si un producto se agota, se desactiva o requiere receta, el
+carrito lo marca y no deja pagar hasta corregirlo.
 
-**IVA.** En Guatemala el precio al público incluye IVA, así que se desglosa: total 112 → subtotal 100 + IVA 12
-(`lib/dinero.ts`). Los cálculos redondean a 2 decimales para evitar errores como `0.1 + 0.2`.
+**IVA.** En Guatemala el precio al público incluye IVA, así que se desglosa: total 112 → subtotal 100 +
+IVA 12 (`lib/dinero.ts`). Los montos se redondean a 2 decimales.
 
-**Checkout sin login (temporal).** Se busca al cliente por NIT y se crea si no existe. Con "CF"
-(consumidor final), que lo comparten muchas personas, se busca por NIT y correo. Luego se crea la factura,
-se pide la sesión de Stripe y se redirige. Prueba con la tarjeta 4242 4242 4242 4242.
+**Panel genérico.** Productos, clientes, proveedores y empleados usan la misma `ResourcePage`; lo que
+cambia (columnas y campos) es configuración en `admin/recursos.tsx`. Los registros se desactivan con
+`estado: false` en vez de borrarse, para no perder el historial de las facturas.
 
-**Panel genérico.** Productos, clientes, proveedores y empleados usan la misma `ResourcePage`. Lo que
-cambia (columnas y campos del formulario) es configuración en `admin/recursos.tsx`. Agregar un recurso
-nuevo es escribir su configuración, no otra pantalla. Nunca se usa `DELETE`: se desactiva con
-`PUT { estado: false }`, porque borrar un producto que ya está en facturas falla y pierde historial.
+**Imágenes.** Cada producto puede tener el enlace de una imagen. Si no tiene o el enlace no carga,
+`ProductImage` dibuja un empaque con el nombre y el código de barras.
 
-**Búsqueda y orden del catálogo en la URL** (`?q=...&orden=...`): se pueden compartir, sobreviven a
-recargar y el botón Atrás funciona.
-
-**Imágenes.** El backend no tiene `imagen_url`, así que `ProductImage` dibuja un empaque con la inicial
-y un color fijo por id. Cuando exista la imagen, solo cambia ese componente.
-
-## Cuando el backend se actualice
-
-- **Stripe vuelve al frontend** (cambio 1 de BACKEND-CAMBIOS.md): no hay que tocar nada, las páginas ya existen.
-- **Precios calculados en el servidor** (cambio 2): no hay que tocar nada.
-- **Login**: borrar `buscarOCrearCliente` de `api/checkout.ts`, tomar el `id_cliente` de la sesión y
-  agregar el token en `apiFetch` (un solo lugar).
-- **`imagen_url`**: agregarla a `Producto` en `types/models.ts` y usarla en `ProductImage`.
+**Búsqueda y orden del catálogo en la URL** (`?q=...&orden=...`): se pueden compartir y el botón Atrás
+funciona.
