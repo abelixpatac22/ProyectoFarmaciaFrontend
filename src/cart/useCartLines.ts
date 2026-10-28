@@ -5,7 +5,7 @@ import { getPrecio, getStockVendible } from '../lib/producto'
 import type { Producto } from '../types/models'
 import { useCart } from './useCart'
 
-export type ProblemaLinea = 'no-disponible' | 'sin-precio' | 'stock-insuficiente'
+export type ProblemaLinea = 'no-disponible' | 'sin-precio' | 'stock-insuficiente' | 'requiere-receta'
 
 export interface CartLine {
   id_producto: number
@@ -34,6 +34,8 @@ export function useCartLines() {
       const stock = producto ? getStockVendible(producto) : 0
       let problema: ProblemaLinea | null = null
       if (!producto) problema = 'no-disponible'
+      // Pudo quedar en el carrito de antes de que se marcara con receta: no se puede pagar en línea
+      else if (producto.requiere_receta) problema = 'requiere-receta'
       else if (getPrecio(producto) === null) problema = 'sin-precio'
       else if (item.cantidad > stock) problema = 'stock-insuficiente'
 

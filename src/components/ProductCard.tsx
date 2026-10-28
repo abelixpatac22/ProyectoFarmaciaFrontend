@@ -60,23 +60,32 @@ export function ProductCard({ producto }: { producto: Producto }) {
               <span className="text-base text-ink-soft">Precio no disponible</span>
             )}
           </p>
-          <button
-            type="button"
-            onClick={() => agregar(producto.id_producto)}
-            disabled={!puedeAgregar}
-            className="relative z-10 inline-flex h-10 items-center gap-1.5 rounded-box bg-ink px-3.5 text-sm font-semibold text-white transition-[background-color,transform] duration-150 ease-out hover:bg-brand-700 active:scale-[0.97] disabled:bg-zinc-200 disabled:text-zinc-600 disabled:active:scale-100"
-            aria-label={`Agregar ${nombre} al carrito`}
-          >
-            <CartIcon className="size-4" />
-            {/* key: cada vez que cambia la cantidad el número "salta" para confirmar que se agregó */}
-            {enCarrito > 0 ? (
-              <span key={enCarrito} className={`inline-block tabular-nums ${enCarrito !== enCarritoInicial ? 'animate-bump' : ''}`}>
-                {enCarrito}
-              </span>
-            ) : (
-              'Agregar'
-            )}
-          </button>
+          {/* Con receta no se vende en línea: el detalle del producto explica cómo comprarlo */}
+          {producto.requiere_receta ? (
+            <span className="text-right text-xs leading-tight font-medium text-amber-900">
+              Solo en
+              <br />
+              farmacia física
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => agregar(producto.id_producto)}
+              disabled={!puedeAgregar}
+              className="relative z-10 inline-flex h-10 items-center gap-1.5 rounded-box bg-ink px-3.5 text-sm font-semibold text-white transition-[background-color,transform] duration-150 ease-out hover:bg-brand-700 active:scale-[0.97] disabled:bg-zinc-200 disabled:text-zinc-600 disabled:active:scale-100"
+              aria-label={`Agregar ${nombre} al carrito`}
+            >
+              <CartIcon className="size-4" />
+              {/* key: cada vez que cambia la cantidad el número "salta" para confirmar que se agregó */}
+              {enCarrito > 0 ? (
+                <span key={enCarrito} className={`inline-block tabular-nums ${enCarrito !== enCarritoInicial ? 'animate-bump' : ''}`}>
+                  {enCarrito}
+                </span>
+              ) : (
+                'Agregar'
+              )}
+            </button>
+          )}
         </div>
       </div>
     </article>

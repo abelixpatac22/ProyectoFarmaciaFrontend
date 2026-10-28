@@ -71,7 +71,7 @@ export function ProductoPage() {
   const stock = getStockVendible(producto)
   const enCarrito = items.find((i) => i.id_producto === producto.id_producto)?.cantidad ?? 0
   const disponibles = Math.max(stock - enCarrito, 0)
-  const puedeAgregar = precio !== null && disponibles > 0
+  const puedeAgregar = precio !== null && disponibles > 0 && !producto.requiere_receta
 
   function handleAgregar() {
     agregar(producto!.id_producto, cantidad)
@@ -111,27 +111,29 @@ export function ProductoPage() {
           </p>
           <p className="mt-2 text-sm text-ink-soft">Precio por unidad, con IVA incluido</p>
 
-          {producto.requiere_receta && (
-            <div className="mt-8 flex gap-3 rounded-box bg-amber-50 p-4 text-amber-900">
-              <RecetaIcon className="mt-0.5 size-5 shrink-0" />
-              <p>
-                <strong className="font-semibold">Requiere receta médica.</strong> Deberás presentarla al recoger o
-                recibir tu pedido.
-              </p>
-            </div>
-          )}
-
           <p className={`mt-8 text-sm font-semibold ${STOCK_LABEL[estadoStock].clase}`}>
             {STOCK_LABEL[estadoStock].texto}
             {estadoStock !== 'agotado' && <span className="font-normal text-ink-soft"> · {stock} en existencia</span>}
           </p>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            {puedeAgregar && <QuantityInput value={cantidadVisible} max={disponibles} onChange={setCantidad} />}
-            <button type="button" onClick={handleAgregar} disabled={!puedeAgregar} className={`${btn.brand} flex-1 sm:flex-none`}>
-              {agregado ? <CheckIcon key="ok" className="size-4 animate-bump" /> : <CartIcon className="size-4" />}
-              {agregado ? 'Agregado' : 'Agregar al carrito'}
-            </button>
-          </div>
+
+          {/* Con receta no se vende en línea: en lugar del botón de compra se explica cómo comprarlo */}
+          {producto.requiere_receta ? (
+            <div className="mt-3 flex gap-3 rounded-box bg-amber-50 p-4 text-amber-900">
+              <RecetaIcon className="mt-0.5 size-5 shrink-0" />
+              <p>
+                <strong className="font-semibold">Venta solo con receta médica.</strong> Este producto no se vende en
+                línea: preséntala al momento de realizar la compra en nuestra farmacia física.
+              </p>
+            </div>
+          ) : (
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              {puedeAgregar && <QuantityInput value={cantidadVisible} max={disponibles} onChange={setCantidad} />}
+              <button type="button" onClick={handleAgregar} disabled={!puedeAgregar} className={`${btn.brand} flex-1 sm:flex-none`}>
+                {agregado ? <CheckIcon key="ok" className="size-4 animate-bump" /> : <CartIcon className="size-4" />}
+                {agregado ? 'Agregado' : 'Agregar al carrito'}
+              </button>
+            </div>
+          )}
 
           {/* Lo mismo que dirá la factura: el IVA ya va dentro del precio, aquí solo se desglosa */}
           {desglose && (

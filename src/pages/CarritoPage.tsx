@@ -14,6 +14,7 @@ const PROBLEMAS: Record<ProblemaLinea, string> = {
   'no-disponible': 'Este producto ya no está disponible. Quítalo para continuar.',
   'sin-precio': 'Este producto no tiene precio. Quítalo para continuar.',
   'stock-insuficiente': 'No hay suficientes unidades. Reduce la cantidad.',
+  'requiere-receta': 'Requiere receta médica: solo se vende en la farmacia física. Quítalo para continuar.',
 }
 
 export function CarritoPage() {
