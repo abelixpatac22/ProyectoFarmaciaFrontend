@@ -11,7 +11,11 @@ export function getFactura(id: number, signal?: AbortSignal) {
   return apiFetch<FacturaCompleta>(`/api/facturas/${id}`, { signal })
 }
 
-/** POST /api/facturas: crea la venta y descuenta stock. Si falta stock responde 500 con el motivo en `detalle`. */
+/**
+ * POST /api/facturas desde la tienda: compra web, queda Pendiente hasta que Stripe confirme el pago.
+ * Va sin sesión aunque el panel esté abierto en este navegador (con token sería una venta de mostrador).
+ * Si falta stock responde 500 con el motivo en `detalle`.
+ */
 export function crearFactura(body: CrearFacturaBody) {
-  return apiSend<CrearFacturaRespuesta>('/api/facturas', 'POST', body)
+  return apiSend<CrearFacturaRespuesta>('/api/facturas', 'POST', body, { sinSesion: true })
 }

@@ -31,9 +31,13 @@ const RUTAS_401_SIN_CERRAR_SESION = ['/api/auth/login', '/api/auth/cambiar-passw
  * Único lugar donde se llama a fetch. Todas las funciones de src/api lo usan.
  * fetch NO lanza error con 404 o 500 (solo cuando no hay red), por eso revisamos res.ok a mano.
  */
-export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  // Si hay sesión de empleado, todas las peticiones llevan el token (el backend ignora el header donde no lo pide)
-  const token = getToken()
+export async function apiFetch<T>(path: string, init?: RequestInit & { sinSesion?: boolean }): Promise<T> {
+  // Si hay sesión de empleado, las peticiones llevan el token (el backend ignora el header donde no lo pide).
+  // sinSesion: la compra de la tienda nunca lo lleva; si no, con el panel abierto en el mismo navegador
+  // el backend la tomaría como venta de un empleado en la farmacia física (Completada, sin cobrar)
+  const { sinSesion, ...opciones } = init ?? {}
+  init = opciones
+  const token = sinSesion ? null : getToken()
   let res: Response
   try {
     res = await fetch(`${API_URL}${path}`, {
@@ -73,8 +77,13 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 }
 
 /** Atajo para enviar JSON con POST o PUT. */
-export function apiSend<T>(path: string, method: 'POST' | 'PUT' | 'DELETE', body?: unknown): Promise<T> {
-  return apiFetch<T>(path, { method, body: body === undefined ? undefined : JSON.stringify(body) })
+export function apiSend<T>(
+  path: string,
+  method: 'POST' | 'PUT' | 'DELETE',
+  body?: unknown,
+  opciones?: { sinSesion?: boolean },
+): Promise<T> {
+  return apiFetch<T>(path, { method, body: body === undefined ? undefined : JSON.stringify(body), ...opciones })
 }
 
 /**
