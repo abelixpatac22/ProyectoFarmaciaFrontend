@@ -9,9 +9,17 @@ export const STOCK_LABEL: Record<EstadoStock, { texto: string; clase: string }> 
   agotado: { texto: 'Agotado', clase: 'text-zinc-500' },
 }
 
-/** Agotado si no hay unidades; "bajo" si quedan igual o menos que stock_minimo. */
+/**
+ * Unidades que se pueden vender: las de lotes sin vencer (stock_disponible). Lo vencido sigue en bodega
+ * (stock_actual) hasta que lo retiren, pero la tienda no lo ofrece.
+ */
+export function getStockVendible(producto: Producto): number {
+  return producto.stock_disponible ?? producto.stock_actual ?? 0
+}
+
+/** Agotado si no hay unidades vendibles; "bajo" si quedan igual o menos que stock_minimo. */
 export function getEstadoStock(producto: Producto): EstadoStock {
-  const stock = producto.stock_actual ?? 0
+  const stock = getStockVendible(producto)
   if (stock <= 0) return 'agotado'
   if (producto.stock_minimo !== null && stock <= producto.stock_minimo) return 'bajo'
   return 'disponible'

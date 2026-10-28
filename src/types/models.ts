@@ -24,11 +24,46 @@ export interface Producto {
   imagen_url: string | null
   precio_costo: Decimal | null
   precio_venta: Decimal | null
+  /** Todo lo que hay en bodega: suma de los lotes activos, incluidos los vencidos que falta retirar. */
   stock_actual: number | null
+  /** Lo que se puede vender: solo lotes sin vencer. Lo calcula el backend al listar productos. */
+  stock_disponible?: number
   stock_minimo: number | null
   requiere_receta: boolean | null
   estado: boolean | null
   id_proveedor: number | null
+}
+
+/** Activo: cuenta en el stock. Retirado: dado de baja (merma). */
+export type EstadoLote = 'Activo' | 'Retirado'
+
+/** Un grupo de unidades de un producto que llegó junto y vence en la misma fecha. */
+export interface Lote {
+  id_lote: number
+  id_producto: number
+  numero_lote: string
+  /** Solo la fecha: "2027-06-30". */
+  fecha_vencimiento: string
+  cantidad_inicial: number
+  cantidad_actual: number
+  fecha_ingreso: FechaISO | null
+  estado: EstadoLote
+  cantidad_retirada: number
+  motivo_retiro: string | null
+  fecha_retiro: FechaISO | null
+}
+
+/** GET /api/lotes: cada lote trae el nombre y código del producto. */
+export interface LoteConProducto extends Lote {
+  producto: Pick<Producto, 'nombre' | 'codigo_barras'> | null
+}
+
+/** POST /api/lotes: entrada de mercadería. */
+export interface EntradaLoteBody {
+  id_producto: number
+  numero_lote: string
+  fecha_vencimiento: string
+  cantidad: number
 }
 
 export interface Proveedor {
@@ -112,7 +147,13 @@ export interface FacturaConCliente extends Factura {
 /** GET /api/facturas/:id: factura con cliente, empleado y detalle con el nombre del producto. */
 export interface FacturaCompleta extends FacturaConCliente {
   empleado: Pick<Empleado, 'nombre' | 'puesto'> | null
-  detalle_facturas: Array<DetalleFactura & { producto: Pick<Producto, 'nombre'> | null }>
+  detalle_facturas: Array<
+    DetalleFactura & {
+      producto: Pick<Producto, 'nombre'> | null
+      /** De qué lote salió cada unidad. Vacío en las facturas de antes del control de lotes. */
+      detalle_factura_lotes?: Array<{ cantidad: number; lote: Pick<Lote, 'numero_lote' | 'fecha_vencimiento'> | null }>
+    }
+  >
 }
 
 /* ---------- Respuestas genéricas del backend ---------- */

@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { clientesApi } from '../api/clientes'
 import { empleadosApi } from '../api/empleados'
 import { productosApi } from '../api/productos'
@@ -5,6 +6,7 @@ import { proveedoresApi } from '../api/proveedores'
 import { Badge } from '../components/Badge'
 import { productoKeys } from '../hooks/useProductos'
 import { formatFecha, formatQuetzales, toNumber } from '../lib/format'
+import { getStockVendible } from '../lib/producto'
 import type { Cliente, Empleado, Producto, Proveedor } from '../types/models'
 import type { ResourceConfig } from './recurso'
 
@@ -76,12 +78,20 @@ export const productosConfig: ResourceConfig<Producto> = {
     {
       header: 'Stock',
       className: 'text-right tabular-nums',
+      // El número grande es lo vendible; si hay lotes vencidos sin retirar se avisa debajo
       render: (p) => {
-        const bajo = p.stock_minimo !== null && (p.stock_actual ?? 0) <= p.stock_minimo
+        const vendible = getStockVendible(p)
+        const vencidas = (p.stock_actual ?? 0) - vendible
+        const bajo = p.stock_minimo !== null && vendible <= p.stock_minimo
         return (
-          <span className={bajo ? 'font-semibold text-red-600' : ''} title={`Mínimo: ${p.stock_minimo ?? '—'}`}>
-            {p.stock_actual ?? 0}
-          </span>
+          <div title={`Mínimo: ${p.stock_minimo ?? '—'}`}>
+            <span className={bajo ? 'font-semibold text-red-600' : ''}>{vendible}</span>
+            {vencidas > 0 && (
+              <Link to="/admin/lotes" className="block text-xs font-medium whitespace-nowrap text-red-600 hover:underline">
+                +{vencidas} vencidas
+              </Link>
+            )}
+          </div>
         )
       },
     },
@@ -114,8 +124,14 @@ export const productosConfig: ResourceConfig<Producto> = {
     },
     { name: 'precio_costo', label: 'Precio de costo (Q)', tipo: 'decimal' },
     { name: 'precio_venta', label: 'Precio de venta (Q)', tipo: 'decimal', requerido: true },
-    { name: 'stock_actual', label: 'Stock actual', tipo: 'entero', requerido: true },
-    { name: 'stock_minimo', label: 'Stock mínimo', tipo: 'entero' },
+    // El stock no se escribe aquí: sube con cada entrada en "Lotes y vencimientos" y baja con las ventas
+    {
+      name: 'stock_minimo',
+      label: 'Stock mínimo',
+      tipo: 'entero',
+      ayuda: 'Con esta cantidad o menos se avisa "Últimas unidades". Para sumar stock registra una entrada en Lotes y vencimientos.',
+      completo: true,
+    },
     { name: 'requiere_receta', label: 'Requiere receta médica', tipo: 'checkbox', completo: true },
   ],
 }

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useProductosActivos } from '../hooks/useProductos'
 import { redondear } from '../lib/dinero'
-import { getPrecio } from '../lib/producto'
+import { getPrecio, getStockVendible } from '../lib/producto'
 import type { Producto } from '../types/models'
 import { useCart } from './useCart'
 
@@ -31,7 +31,7 @@ export function useCartLines() {
     const lineas: CartLine[] = items.map((item) => {
       const producto = porId.get(item.id_producto) ?? null
       const precio = producto ? (getPrecio(producto) ?? 0) : 0
-      const stock = producto?.stock_actual ?? 0
+      const stock = producto ? getStockVendible(producto) : 0
       let problema: ProblemaLinea | null = null
       if (!producto) problema = 'no-disponible'
       else if (getPrecio(producto) === null) problema = 'sin-precio'

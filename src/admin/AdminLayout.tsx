@@ -4,10 +4,13 @@ import { Link, Navigate, NavLink, Outlet, useLocation } from 'react-router'
 import { getPerfil } from '../api/auth'
 import { actualizarEmpleado, cerrarSesion } from '../auth/sesion'
 import { useSesion } from '../auth/useSesion'
+import { getLotes } from '../api/lotes'
 import { ArrowLeftIcon, LogoutIcon } from '../components/icons'
+import { loteKeys, necesitaAtencion } from './lotes'
 
 const SECCIONES = [
   { to: '/admin/productos', texto: 'Productos' },
+  { to: '/admin/lotes', texto: 'Lotes y vencimientos' },
   { to: '/admin/facturas', texto: 'Facturas' },
   { to: '/admin/gestion', texto: 'Gestión' },
 ]
@@ -25,6 +28,15 @@ export function AdminLayout() {
     enabled: empleado !== null,
     staleTime: 5 * 60_000,
   })
+
+  // Misma consulta que la página de lotes (comparten caché): el número rojo de la pestaña son los
+  // lotes vencidos o que vencen en 30 días o menos, para que se vean desde cualquier sección
+  const lotes = useQuery({
+    queryKey: loteKeys.all,
+    queryFn: ({ signal }) => getLotes(signal),
+    enabled: empleado !== null,
+  })
+  const lotesUrgentes = (lotes.data ?? []).filter(necesitaAtencion).length
 
   // Datos frescos del servidor: si cambiaron su rol o su nombre, el panel lo refleja
   useEffect(() => {
@@ -94,6 +106,14 @@ export function AdminLayout() {
               }
             >
               {s.texto}
+              {s.to === '/admin/lotes' && lotesUrgentes > 0 && (
+                <span
+                  className="ml-1.5 inline-grid min-w-5 place-items-center rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white tabular-nums"
+                  title={`${lotesUrgentes} lotes vencidos o por vencer en 30 días`}
+                >
+                  {lotesUrgentes}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>

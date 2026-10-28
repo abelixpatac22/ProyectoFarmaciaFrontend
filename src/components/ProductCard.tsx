@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { useCart } from '../cart/useCart'
 import { formatQuetzales } from '../lib/format'
-import { getEstadoStock, getPrecio, STOCK_LABEL } from '../lib/producto'
+import { getEstadoStock, getPrecio, getStockVendible, STOCK_LABEL } from '../lib/producto'
 import type { Producto } from '../types/models'
 import { CartIcon, RecetaIcon } from './icons'
 import { ProductImage } from './ProductImage'
@@ -16,7 +16,7 @@ export function ProductCard({ producto }: { producto: Producto }) {
   const enCarrito = items.find((i) => i.id_producto === producto.id_producto)?.cantidad ?? 0
   // El número solo "salta" al agregar, no cuando la tarjeta aparece con unidades ya en el carrito
   const [enCarritoInicial] = useState(enCarrito)
-  const puedeAgregar = !agotado && precio !== null && enCarrito < (producto.stock_actual ?? 0)
+  const puedeAgregar = !agotado && precio !== null && enCarrito < getStockVendible(producto)
 
   return (
     <article

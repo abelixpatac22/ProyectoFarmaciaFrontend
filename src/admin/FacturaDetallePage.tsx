@@ -96,7 +96,16 @@ export function FacturaDetallePage() {
           <tbody className="divide-y divide-zinc-100">
             {f.detalle_facturas.map((d) => (
               <tr key={d.id_detalle}>
-                <td className="px-4 py-3 font-medium">{d.producto?.nombre ?? `Producto #${d.id_producto}`}</td>
+                <td className="px-4 py-3">
+                  <p className="font-medium">{d.producto?.nombre ?? `Producto #${d.id_producto}`}</p>
+                  {/* Trazabilidad: de qué lote salió cada unidad (las facturas de antes de los lotes no lo tienen) */}
+                  {d.detalle_factura_lotes?.map((s, i) => (
+                    <p key={i} className="text-xs text-zinc-500">
+                      {s.cantidad} del lote <span className="font-mono">{s.lote?.numero_lote}</span> · vence{' '}
+                      {formatFecha(s.lote?.fecha_vencimiento ?? null, true)}
+                    </p>
+                  ))}
+                </td>
                 <td className="px-4 py-3 text-right tabular-nums">{d.cantidad ?? 0}</td>
                 <td className="px-4 py-3 text-right tabular-nums">{q(d.precio_unitario)}</td>
                 <td className="px-4 py-3 text-right font-medium tabular-nums">{q(d.subtotal_linea)}</td>

@@ -5,6 +5,7 @@ import { FacturaDetallePage } from './admin/FacturaDetallePage'
 import { FacturasPage } from './admin/FacturasPage'
 import { GestionLayout } from './admin/GestionLayout'
 import { LoginPage } from './admin/LoginPage'
+import { LotesPage } from './admin/LotesPage'
 import { clientesConfig, empleadosConfig, productosConfig, proveedoresConfig } from './admin/recursos'
 import { ResourcePage } from './admin/ResourcePage'
 import { Layout } from './components/Layout'
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="productos" replace /> },
       // key distinta: al cambiar de sección React crea la página de cero (se limpian búsqueda y filtros)
       { path: 'productos', element: <ResourcePage key="productos" config={productosConfig} /> },
+      { path: 'lotes', element: <LotesPage /> },
       // Gestión: clientes, proveedores y empleados comparten las pestañas de GestionLayout
       {
         path: 'gestion',

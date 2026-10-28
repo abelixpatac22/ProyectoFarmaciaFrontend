@@ -11,7 +11,7 @@ import { btn } from '../components/ui'
 import { useProducto } from '../hooks/useProductos'
 import { desglosarIva, redondear } from '../lib/dinero'
 import { formatQuetzales } from '../lib/format'
-import { getEstadoStock, getPrecio, STOCK_LABEL } from '../lib/producto'
+import { getEstadoStock, getPrecio, getStockVendible, STOCK_LABEL } from '../lib/producto'
 
 export function ProductoPage() {
   // useParams lee la parte variable de la ruta "/productos/:id". Siempre llega como texto.
@@ -68,7 +68,7 @@ export function ProductoPage() {
   const nombre = producto.nombre?.trim() || 'Producto sin nombre'
   const precio = getPrecio(producto)
   const estadoStock = getEstadoStock(producto)
-  const stock = producto.stock_actual ?? 0
+  const stock = getStockVendible(producto)
   const enCarrito = items.find((i) => i.id_producto === producto.id_producto)?.cantidad ?? 0
   const disponibles = Math.max(stock - enCarrito, 0)
   const puedeAgregar = precio !== null && disponibles > 0
